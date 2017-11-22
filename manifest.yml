@@ -1,0 +1,5 @@
+---
+applications:
+ - name: LogicX
+   host: LogicX
+   memory: 128M
