@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Level {{ levelnum }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+#text-code-ace {
+    /*top: 5px;*/
+    /*bottom: 0px;*/
+    width: 100%;
+    /*height: px;*/
+}
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Welcome to Level {{levelnum}}</h1>
+    </div>
+    {% include "editor.html" %}
+{% endblock %}
+
+{% block scripts %}
+	{{ super() }}
+    <script src="{{ url_for('static', filename='ace/ace.js') }}"></script>
+    <script>
+        // Set up the editor
+        var editor = ace.edit("text-code-ace");
+        var language = "c_cpp";
+        editor.resize()
+        editor.getSession().setMode("ace/mode/" + language);
+        editor.setTheme("ace/theme/clouds");
+        document.getElementById('text-code-ace').style.fontSize='16px';
+
+        document.getElementById("launch-button").addEventListener("click", function () {
+        document.getElementById("text-code").innerHTML = editor.getValue();
+    });
+    </script>
+{% endblock %}

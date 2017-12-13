@@ -1,0 +1,72 @@
+<div class="container-fluid" style="padding:10px">
+    <div class="row row-eq-height" style="overflow:hidden;margin:10px">
+        <div class="col-sm-6" >
+            <!-- ************  CODING ZONE  ************ -->
+            <div id="code">
+                <form method="post" action="{{ url_for(target) }}">
+                    <div class="row">
+                        <div id="title-code" class="head-section col-md-6">
+                            Source Code
+                        </div>
+                        <div class="col-md-6">
+                            <input id="launch-button" class="head-section pull-right" type="submit" value="Launch" />
+                        </div>
+                    </div>
+                    {% block code %}
+                    <textarea id="text-code" name="code" class="hidden">{{ code }}</textarea>
+                    <div id="text-code-ace" style="margin-bottom: -99999px;padding-bottom: 99999px">{{ code }}</div>
+                    {% endblock %}
+                </form>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <!-- ************ RUNNING ZONE RESULTS ************ -->
+            <div id="result">
+                <div id="title-result" class="head-section">
+                    Output result
+                </div>
+                {% block run %}
+                <textarea id="text-result" rows="18" style="width:100%" readonly>{{ resrun }}</textarea>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    <div class="row row-eq-height" style="margin:10px;">
+        <!-- ************ COMPILATION RESULTS ZONE ************ -->
+        <div class="col-sm-6">
+            <div id="compile">
+                <div id="title-compile" class="head-section">
+                    Compilation / Output
+                </div>
+                {% block comp %}
+                <textarea id="text-compile" rows="7" style="width:100%" readonly>{{ rescomp }}</textarea>
+                {% endblock %}
+            </div>
+        </div>
+
+        <!-- ************ STANDARD INPUT ZONE ************ -->
+        <div class="col-sm-3">
+            <div id="stinput">
+                <div id="title-stdin" class="head-section">
+                    Standard Input
+                </div>
+                {% block stin %}
+                <textarea id="text-stdin" rows="7" style="width:100%" readonly>{{ stin }}</textarea>
+                {% endblock %}
+            </div>
+        </div>
+
+        <!-- ************ EXPECTED OUTPUT ZONE ************ -->
+        <div class="col-sm-3">
+            <div id="expectoutput">
+                <div id="title-exoutput" class="head-section">
+                    Expected Output
+                </div>
+                {% block exout %}
+                <textarea id="text-exoutput" rows="7" style="width:100%" readonly>{{ exoutput }}</textarea>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
