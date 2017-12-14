@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+<div> <img class="img-responsive center-block" style="width:25%" src="/static/images/favicon.png"> </div>
+<div class="center-block container">
+    <form method="post" action="/">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="name" class="form-control" id="name" aria-describedby="name" name="name" placeholder="Enter Name">
+            <small id="nameTip" class="form-text text-muted">We'll use this name to personalise a little, nothing fancy.</small>
+        </div>
+        <button type="submit" class="btn btn-primary">Start The Journey !</button>
+    </form>
+</div>
+{% endblock %}

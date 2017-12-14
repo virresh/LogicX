@@ -1,5 +1,5 @@
 from cloudant import Cloudant
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, escape
 import atexit
 import cf_deployment_tracker
 import os
@@ -10,10 +10,8 @@ import subprocess
 cf_deployment_tracker.track()
 
 app = Flask(__name__)
+app.secret_key = 'YouThinkYouCanGetThisSoEasilyThenYouAreWrong'
 
-db_name = 'mydb'
-client = None
-db = None
 default_rows = "15"
 default_cols = "60"
 
@@ -29,36 +27,29 @@ int main()
 if 'VCAP_SERVICES' in os.environ:
 	vcap = json.loads(os.getenv('VCAP_SERVICES'))
 	print('Found VCAP_SERVICES')
-	if 'cloudantNoSQLDB' in vcap:
-		creds = vcap['cloudantNoSQLDB'][0]['credentials']
-		user = creds['username']
-		password = creds['password']
-		url = 'https://' + creds['host']
-		client = Cloudant(user, password, url=url, connect=True)
-		db = client.create_database(db_name, throw_on_exists=False)
+	if 'secretkey' in vcap:
+		app.secretkey = vcap['secretkey']
 elif os.path.isfile('vcap-local.json'):
 	with open('vcap-local.json') as f:
 		vcap = json.load(f)
 		print('Found local VCAP_SERVICES')
-		creds = vcap['services']['cloudantNoSQLDB'][0]['credentials']
-		user = creds['username']
-		password = creds['password']
-		url = 'https://' + creds['host']
-		client = Cloudant(user, password, url=url, connect=True)
-		db = client.create_database(db_name, throw_on_exists=False)
+		app.secret_key = vcap['secretkey']
 
 # On Bluemix, get the port number from the environment variable PORT
 # When running this app on the local machine, default the port to 8000
 port = int(os.getenv('PORT', 8000))
 
-@app.route('/')
+@app.route('/',methods=['POST', 'GET'])
 def home():
-	return render_template('home.html')
-
-@atexit.register
-def shutdown():
-	if client:
-		client.disconnect()
+	if('username' in session):
+		return render_template('home.html', name=session['username'], track=session['track'], level=session['level'])
+	else:
+		if (request.form.get('name')!=None and request.method=="POST"):
+			session['username'] = request.form['name']
+			session['track'] = None
+			session['level'] = None
+			return home()
+		return render_template('login.html')
 
 @app.route('/level', methods=['POST', 'GET'])
 def test():
@@ -79,6 +70,12 @@ def test():
 						   exoutput='',
 						   stin='')
 
+@app.route('/reset')
+def reset():
+	session.pop('username',None)
+	session.pop('track',None)
+	session.pop('level',None)
+	return home()
 
 def compileAndRunInput(code,stin):
 	x = ''
@@ -102,6 +99,11 @@ def compileAndRunInput(code,stin):
 		except Exception as e:
 			y = e.output.decode()
 	return (x,y)
+
+# @atexit.register
+# def shutdown():
+# 	#Currently empty function, should change hopefully soon
+# 	pass
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=port, debug=True)

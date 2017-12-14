@@ -4,12 +4,13 @@
             <!-- ************  CODING ZONE  ************ -->
             <div id="code">
                 <form method="post" action="{{ url_for(target) }}">
-                    <div class="row">
-                        <div id="title-code" class="head-section col-md-6">
+                    <div class="row row-eq-height">
+                        <div id="title-code" class="head-section col-xs-6" style="padding:15px">
                             Source Code
                         </div>
-                        <div class="col-md-6">
-                            <input id="launch-button" class="head-section pull-right" type="submit" value="Launch" />
+                        <div class="col-xs-6">
+                            <button id="launch-button" type="submit" class="btn btn-default head-section pull-right">Submit Code</button>
+                            <!-- <input id="launch-button" class="head-section pull-right" type="submit" value="Launch" /> -->
                         </div>
                     </div>
                     {% block code %}
