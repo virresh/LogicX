@@ -1,4 +1,7 @@
 vcap-local.json
 a.out
 a.cpp
+games/__init__.pyc
+games/__pycache__/
+games/level.pyc
 

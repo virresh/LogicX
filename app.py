@@ -4,7 +4,7 @@ import atexit
 import cf_deployment_tracker
 import os
 import json
-import subprocess
+import games.level
 
 # Emit Bluemix deployment event
 cf_deployment_tracker.track()
@@ -57,18 +57,44 @@ def test():
 	resrun = 'Not running'
 	rescompil = ''
 	stin = ''
+	exout = ''
+
+	if(request.method =="POST"):
+		y = request.form.get('track')
+		z = request.form.get('level')
+		if(y == None or z == None ):
+			return redirect(url_for('home'))
+		session['track'] = y
+		session['level'] = z
+
+	lv = games.level.getLevel(session['track'],session['level'])
+	if(lv==None):
+		return redirect(url_for('home'))
+	stin = lv.input
+	exout = lv.exout
+
 	if(request.method == "POST"):
-		code = request.form["code"]
-		(rescompil,resrun) = compileAndRunInput(code,stin)
+		code = request.form.get("code")
+		if code != None:
+			(rescompil,resrun,success) = games.level.checkOutput(code,lv)
+			stin = lv.input
+			exout = lv.exout
+			print(success)
+			if(success):
+				session['level'] = str(int(session['level']) + 1)
+				return redirect(url_for('test'))
+		else:
+			code = default_Code
 	return render_template("looplevel.html",
-						   levelnum=1,
+						   levelnum=session['level'],
 						   code=code,
 						   target="test",
 						   resrun=resrun,
 						   rescomp=rescompil,
 						   rows=default_rows, cols=default_cols,
-						   exoutput='',
-						   stin='')
+						   exoutput=exout,
+						   stin=stin,
+						   track=session['track'])
 
 @app.route('/reset')
 def reset():
@@ -77,28 +103,6 @@ def reset():
 	session.pop('level',None)
 	return home()
 
-def compileAndRunInput(code,stin):
-	x = ''
-	y = 'Not Executed'
-	goForRun = False
-	f = open("a.cpp","w")
-	f.write(code)
-	f.close()
-	try:
-		x = subprocess.check_output(["g++","-Wall","a.cpp"],stderr=subprocess.STDOUT,timeout=1).decode()
-		goForRun = True
-	except Exception as e:
-		x = e.output.decode()
-	if(goForRun):
-		x = x + "\n\nCompiled Sucessfully."
-		try:
-			l = subprocess.Popen(('echo', stin), stdout=subprocess.PIPE)
-			y = subprocess.check_output(["./a.out"],stderr=subprocess.STDOUT,stdin=l.stdout,timeout=1).decode()
-		except subprocess.TimeoutExpired as e:
-			y = "Time Limit Exceeded."
-		except Exception as e:
-			y = e.output.decode()
-	return (x,y)
 
 # @atexit.register
 # def shutdown():
