@@ -10,11 +10,35 @@
     width: 100%;
     /*height: px;*/
 }
+.msg-fail {
+    background-color: #d9534f;
+    color: white;
+    padding: 10px;
+}
+.msg-success {
+    background-color: #5cb85c;
+    color: white;
+    padding: 10px;
+}
+.modal.modal-wide .modal-dialog {
+  width: 90%;
+}
+.modal-wide .modal-body {
+  overflow-y: auto;
+}
 </style>
 {% endblock %}
 
+
 {% block content %}
-    <div class="container">
+    <div class="container" style="padding:20px;text-align:center">
+        {% if success == True %}
+        <div class="msg-success"><h4>Congrats !!. You have advanced to the next level !<h4></div>
+        {% elif success == False %}
+        <div class="msg-fail"><h4>Uh-oh, Try Again. See the expected input and try to match your output closely. Don't give up !<h4></div>
+            <button id="hint" class="btn btn-warning btn-lg">Click for a hint !</button>
+        {% else %}
+        {% endif %}
         <h1>Welcome to Level {{levelnum}}</h1>
     </div>
     {% include "editor.html" %}
@@ -22,6 +46,17 @@
 
 {% block scripts %}
 	{{ super() }}
+    {% if success == False %}
+    <script>
+        {% autoescape false %}
+        $(document).ready(function(){
+            $("#hint").click(function(){
+                alert("{{ hint }}");
+            });
+        });
+        {% endautoescape %}
+    </script>
+    {% endif %}
     <script src="{{ url_for('static', filename='ace/ace.js') }}"></script>
     <script>
         // Set up the editor
@@ -34,6 +69,11 @@
 
         document.getElementById("launch-button").addEventListener("click", function () {
         document.getElementById("text-code").innerHTML = editor.getValue();
-    });
+        });
+
+        $(".modal-wide").on("show.bs.modal", function() {
+          var height = $(window).height() - 200;
+          $(this).find(".modal-body").css("max-height", height);
+        });
     </script>
 {% endblock %}

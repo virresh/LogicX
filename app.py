@@ -42,22 +42,26 @@ port = int(os.getenv('PORT', 8000))
 @app.route('/',methods=['POST', 'GET'])
 def home():
 	if('username' in session):
-		return render_template('home.html', name=session['username'], track=session['track'], level=session['level'])
+		return render_template('home.html', name=session['username'], track=session.get('track'), level=session.get(session.get('track')),loopL=session.get('loops'),opL=session.get('operators'))
 	else:
 		if (request.form.get('name')!=None and request.method=="POST"):
 			session['username'] = request.form['name']
 			session['track'] = None
 			session['level'] = None
+			session['operators'] = '0'
+			session['loops'] = '0'
 			return home()
 		return render_template('login.html')
 
 @app.route('/level', methods=['POST', 'GET'])
 def test():
-	code = default_Code
+	
 	resrun = 'Not running'
 	rescompil = ''
 	stin = ''
 	exout = ''
+	success = session.get('success')
+	session['success'] = None
 
 	if(request.method =="POST"):
 		y = request.form.get('track')
@@ -66,27 +70,59 @@ def test():
 			return redirect(url_for('home'))
 		session['track'] = y
 		session['level'] = z
+		session[session['track']] = z
 
-	lv = games.level.getLevel(session['track'],session['level'])
+	lv = games.level.getLevel(session.get('track'),session.get('level'))
 	if(lv==None):
 		return redirect(url_for('home'))
 	stin = lv.input
 	exout = lv.exout
-
+	
+	if(session.get('track') == "loops"):
+		default_Code = '''#include <iostream>
+using namespace std;
+int main()
+{
+    int n;
+    cin>>n;
+    for(int i=1; i<=n; i++){
+        for(int j=1; j<=i; j++){
+            cout<<"* ";
+        }
+        cout<<"\\n";
+    }
+	return 0;
+}'''
+	elif (session.get('track') == "operators"):
+		default_Code = '''#include <iostream>
+using namespace std;
+int main()
+{
+    int a,b;
+    cin>>a>>b;
+    cout<<a+b<<"\\n";
+	return 0;
+}'''
+	
+	code = default_Code
+	
 	if(request.method == "POST"):
 		code = request.form.get("code")
 		if code != None:
 			(rescompil,resrun,success) = games.level.checkOutput(code,lv)
 			stin = lv.input
 			exout = lv.exout
-			print(success)
 			if(success):
 				session['level'] = str(int(session['level']) + 1)
+				session[session['track']] = session['level']
+				session['success'] = True;
 				return redirect(url_for('test'))
+			else:
+				session['success'] = None
 		else:
 			code = default_Code
 	return render_template("looplevel.html",
-						   levelnum=session['level'],
+						   levelnum=session.get(session.get('track')),
 						   code=code,
 						   target="test",
 						   resrun=resrun,
@@ -94,7 +130,9 @@ def test():
 						   rows=default_rows, cols=default_cols,
 						   exoutput=exout,
 						   stin=stin,
-						   track=session['track'])
+						   track=session['track'],
+						   success=success,
+						   hint=lv.comment)
 
 @app.route('/reset')
 def reset():

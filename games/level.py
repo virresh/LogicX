@@ -41,7 +41,7 @@ def checkOutput(code,lvl):
 		lvl.exout = z
 		lvl.input = str(x) + " " + str(y)
 	(rescompil,res) = compileAndRunInput(code,lvl)
-	if res==str(lvl.exout):
+	if res.rstrip()==str(lvl.exout).rstrip():
 		return (rescompil,res,True)
 	else:
 		return (rescompil,res,False)
@@ -57,8 +57,10 @@ def compileAndRunInput(code,lvl):
 	try:
 		x = subprocess.check_output(["g++","-Wall","a.cpp"],stderr=subprocess.STDOUT,timeout=1).decode()
 		goForRun = True
-	except Exception as e:
+	except subprocess.TimeoutExpired as e:
 		x = str(e)
+	except Exception as e:
+		x = e.output.decode()
 	if(goForRun):
 		x = x + "\n\nCompiled Sucessfully."
 		try:
@@ -72,21 +74,96 @@ def compileAndRunInput(code,lvl):
 	return (x,y)
 
 ques = level()
-ques.comment = """ Addition Logic : a + b """
+ques.comment = """ Try Simple Addition """
 ques.func = lambda x,y : x + y
 levelDict["operators"].append(ques)
+
 ques = level()
+ques.comment = """ Try Simple Multiplication """
 ques.func = lambda x,y : x * y
 levelDict["operators"].append(ques)
+
 ques = level()
-ques.comment = """ Addition Logic : a + b """
-ques.func = lambda x,y : x + 2 * y
-levelDict["operators"].append(ques)
-ques = level()
-ques.comment = """ Addition Logic : a + b """
-ques.func = lambda x,y : x * x + y
-levelDict["operators"].append(ques)
-ques = level()
-ques.comment = """ Addition Logic : a + b """
+ques.comment = """ Do you notice perfect squares ? """
 ques.func = lambda x,y : (x + y)*(x+y)
 levelDict["operators"].append(ques)
+
+ques = level()
+ques.comment = """ It is a twisted addition :P """
+ques.func = lambda x,y : x + 2 * y
+levelDict["operators"].append(ques)
+
+ques = level()
+ques.comment = """ Combine your square logic with addition :D """
+ques.func = lambda x,y : x * x + y
+levelDict["operators"].append(ques)
+
+ques = level()
+ques.comment = """ No tricks here ! """
+ques.input = '5'
+ques.exout="""* 
+* * 
+* * * 
+* * * * 
+* * * * * """
+levelDict["loops"].append(ques)
+
+ques = level()
+ques.comment = """ Just add spaces on both sides ! """
+ques.input = '5'
+ques.exout=""" * 
+ *  * 
+ *  *  * 
+ *  *  *  * 
+ *  *  *  *  * """
+levelDict["loops"].append(ques)
+
+ques = level()
+ques.comment = """ Add another loop to print spaces equal to the number of row, before printing the character. Don't forget to make single spaced again ! """
+ques.input = '5'
+ques.exout=""" * 
+  * * 
+   * * * 
+    * * * * 
+     * * * * * """
+levelDict["loops"].append(ques)
+
+ques = level()
+ques.comment = """ Add another loop to print spaces before printing the character. Don't forget to make single spaced again ! """
+ques.input = '5'
+ques.exout="""     * 
+    * * 
+   * * * 
+  * * * * 
+ * * * * * """
+levelDict["loops"].append(ques)
+
+ques = level()
+ques.comment = """ Use Past Level's loop knowlege. Make a second loop and invert the outermost loop of the second set. """
+ques.input = '5'
+ques.exout=""" * 
+  * * 
+   * * * 
+    * * * * 
+     * * * * * 
+     * * * * * 
+    * * * * 
+   * * * 
+  * * 
+ * """
+levelDict["loops"].append(ques)
+
+ques = level()
+ques.comment = """ You know what to do here ;)  """
+ques.input = '5'
+ques.exout="""     * 
+    * * 
+   * * * 
+  * * * * 
+ * * * * * 
+ * * * * * 
+  * * * * 
+   * * * 
+    * * 
+     * """
+levelDict["loops"].append(ques)
